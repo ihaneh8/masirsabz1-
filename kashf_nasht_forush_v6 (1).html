@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<title>بازی کشف نشت فروش | مسیر سبز</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
+
+:root{
+  --g:#0d7a5f;
+  --g2:#064e3b;
+  --g3:#10b981;
+  --soft:#ecfdf5;
+  --ink:#0f2922;
+  --muted:#5a7a70;
+  --line:#c5ddd4;
+  --gold:#d4a017;
+  --warn:#fffbeb;
+  --danger:#dc2626;
+  --glass:rgba(255,255,255,0.65);
+  --radius:24px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--ink);
+  font-family:'Vazirmatn',Tahoma,Arial,sans-serif;
+  background:#0a1628;
+  background-image:
+    radial-gradient(ellipse 120% 80% at 10% 0%, rgba(16,185,129,0.35) 0%, transparent 50%),
+    radial-gradient(ellipse 100% 60% at 90% 20%, rgba(6,78,59,0.5) 0%, transparent 45%),
+    radial-gradient(ellipse 80% 50% at 50% 100%, rgba(13,122,95,0.25) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 30% at 70% 60%, rgba(212,160,23,0.08) 0%, transparent 40%),
+    linear-gradient(160deg, #0a1628 0%, #0d2137 40%, #0a1f18 100%);
+  background-attachment:fixed;
+  position:relative;
+  overflow-x:hidden;
+}
+/* floating orbs for 3D depth */
+body::before{
+  content:"";
+  position:fixed;
+  width:500px;height:500px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(16,185,129,0.2) 0%, transparent 70%);
+  top:-120px;left:-100px;
+  filter:blur(60px);
+  animation:float1 18s ease-in-out infinite;
+  pointer-events:none;z-index:0;
+}
+body::after{
+  content:"";
+  position:fixed;
+  width:400px;height:400px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(6,78,59,0.3) 0%, transparent 70%);
+  bottom:-80px;right:-80px;
+  filter:blur(50px);
+  animation:float2 22s ease-in-out infinite;
+  pointer-events:none;z-index:0;
+}
+@keyframes float1{
+  0%,100%{transform:translate(0,0) scale(1)}
+  50%{transform:translate(40px,30px) scale(1.1)}
+}
+@keyframes float2{
+  0%,100%{transform:translate(0,0) scale(1)}
+  50%{transform:translate(-30px,-40px) scale(1.15)}
+}
+
+.app{
+  position:relative;
+  z-index:1;
+  max-width:780px;
+  margin:28px auto;
+  min-height:calc(100vh - 56px);
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(40px) saturate(1.6);
+  -webkit-backdrop-filter:blur(40px) saturate(1.6);
+  border:1px solid rgba(255,255,255,0.18);
+  border-radius:32px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.05),
+    0 25px 80px rgba(0,0,0,0.4),
+    0 10px 30px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.2);
+  overflow:hidden;
+  color:#f0fdf4;
+}
+.app *{color:inherit}
+.top{
+  position:sticky;top:0;z-index:20;
+  padding:16px 24px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+  background:rgba(10,22,40,0.55);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.logo{font-weight:900;color:#34d399;font-size:20px;letter-spacing:-0.3px;text-shadow:0 0 20px rgba(52,211,153,0.4)}
+.small{font-size:12px;color:rgba(240,253,244,0.55)}
+main{padding:28px 22px 52px}
+.hero{text-align:center;padding:48px 10px 32px}
+
+/* 3D Icon */
+.icon{
+  width:96px;height:96px;
+  margin:0 auto 8px;
+  border-radius:28px;
+  background:linear-gradient(145deg,#10b981 0%,#059669 40%,#047857 100%);
+  color:#fff;
+  display:grid;place-items:center;
+  font-size:40px;
+  position:relative;
+  box-shadow:
+    0 20px 40px rgba(16,185,129,0.45),
+    0 8px 16px rgba(0,0,0,0.3),
+    inset 0 2px 0 rgba(255,255,255,0.35),
+    inset 0 -3px 8px rgba(0,0,0,0.2);
+  transform:perspective(600px) rotateX(8deg);
+  transition:transform .3s ease;
+}
+.icon:hover{transform:perspective(600px) rotateX(0deg) scale(1.05)}
+.icon::before{
+  content:"";
+  position:absolute;inset:0;border-radius:28px;
+  background:linear-gradient(180deg,rgba(255,255,255,0.25) 0%,transparent 55%);
+  pointer-events:none;
+}
+.icon::after{
+  content:"";
+  position:absolute;
+  bottom:-18px;left:15%;right:15%;
+  height:20px;
+  background:rgba(16,185,129,0.35);
+  filter:blur(12px);
+  border-radius:50%;
+  z-index:-1;
+}
+
+.eyebrow{margin-top:24px;color:#34d399;font-size:13px;font-weight:700;letter-spacing:0.5px}
+h1{font-size:32px;line-height:1.45;margin:10px 0 14px;font-weight:900;color:#f0fdf4;text-shadow:0 2px 20px rgba(0,0,0,0.3)}
+h2{font-size:22px;line-height:1.6;color:#f0fdf4}
+h3{font-size:17px;margin:28px 0 14px;font-weight:900;color:#a7f3d0}
+.lead{color:rgba(240,253,244,0.65);line-height:2;font-size:14.5px}
+
+.chips{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:24px 0}
+.chip{
+  background:rgba(16,185,129,0.15);
+  color:#6ee7b7;
+  padding:9px 16px;
+  border-radius:999px;
+  font-size:12px;font-weight:700;
+  border:1px solid rgba(16,185,129,0.25);
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
+  backdrop-filter:blur(8px);
+}
+
+.note{
+  background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(245,158,11,0.08));
+  color:#fde68a;
+  border:1px solid rgba(251,191,36,0.25);
+  border-radius:18px;
+  padding:16px 18px;
+  font-size:12.5px;line-height:1.95;
+  margin:22px 0;text-align:right;
+  box-shadow:0 8px 24px rgba(0,0,0,0.15);
+  backdrop-filter:blur(8px);
+}
+
+.btn{
+  width:100%;border:0;border-radius:18px;
+  padding:17px 18px;font:inherit;font-weight:900;
+  cursor:pointer;
+  transition:all .2s cubic-bezier(0.4,0,0.2,1);
+  position:relative;overflow:hidden;
+}
+.btn:active{transform:scale(0.98)}
+.primary{
+  background:linear-gradient(145deg,#10b981 0%,#059669 50%,#047857 100%);
+  color:#fff;
+  box-shadow:
+    0 14px 32px rgba(16,185,129,0.4),
+    0 4px 12px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+}
+.primary:hover{
+  box-shadow:
+    0 18px 40px rgba(16,185,129,0.5),
+    0 6px 16px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+  transform:translateY(-2px);
+}
+.primary::after{
+  content:"";
+  position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
+  transition:left .5s;
+}
+.primary:hover::after{left:120%}
+
+.secondary{
+  background:rgba(255,255,255,0.08);
+  color:#6ee7b7;
+  border:1px solid rgba(16,185,129,0.35);
+  box-shadow:0 4px 16px rgba(0,0,0,0.2);
+  backdrop-filter:blur(8px);
+}
+.secondary:hover{background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.5)}
+.mutedbtn{
+  background:rgba(255,255,255,0.05);
+  color:rgba(240,253,244,0.7);
+  border:1px solid rgba(255,255,255,0.1);
+}
+
+.progressline{display:flex;justify-content:space-between;color:rgba(240,253,244,0.5);font-size:12px;margin-bottom:10px}
+.progress{
+  height:10px;
+  background:rgba(255,255,255,0.08);
+  border-radius:12px;overflow:hidden;margin-bottom:22px;
+  box-shadow:inset 0 2px 4px rgba(0,0,0,0.2);
+}
+.progress i{
+  display:block;height:100%;
+  background:linear-gradient(90deg,#047857,#10b981,#34d399);
+  border-radius:12px;
+  transition:width .3s ease;
+  box-shadow:0 0 16px rgba(16,185,129,0.5);
+}
+
+.card,.form{
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:24px;
+  padding:24px;
+  background:rgba(255,255,255,0.06);
+  box-shadow:0 8px 32px rgba(0,0,0,0.2),inset 0 1px 0 rgba(255,255,255,0.08);
+  backdrop-filter:blur(12px);
+}
+.domain{color:#34d399;font-size:12px;font-weight:900;margin-bottom:12px;letter-spacing:0.3px}
+.q{font-size:20px;font-weight:900;line-height:1.85;margin-bottom:20px;color:#f0fdf4}
+
+.opt{
+  display:flex;align-items:flex-start;gap:14px;
+  width:100%;text-align:right;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:18px;
+  padding:16px;margin:11px 0;
+  font:inherit;color:rgba(240,253,244,0.9);line-height:1.8;
+  cursor:pointer;
+  transition:all .2s ease;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+.opt:hover{
+  border-color:rgba(16,185,129,0.5);
+  background:rgba(16,185,129,0.12);
+  box-shadow:0 8px 24px rgba(16,185,129,0.15);
+  transform:translateY(-2px);
+}
+.num{
+  min-width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(145deg,#10b981,#059669);
+  color:#fff;
+  display:grid;place-items:center;
+  font-size:13px;font-weight:900;flex-shrink:0;
+  box-shadow:0 4px 12px rgba(16,185,129,0.35),inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.field{margin:15px 0}
+.field label{display:block;font-size:12px;font-weight:900;margin-bottom:8px;color:#a7f3d0}
+.field input,.field select,.field textarea{
+  width:100%;padding:15px;
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:14px;font:inherit;
+  color:#f0fdf4;
+  background:rgba(0,0,0,0.25);
+  transition:border-color .2s,box-shadow .2s;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,0.2);
+}
+.field input::placeholder,.field textarea::placeholder{color:rgba(240,253,244,0.3)}
+.field input:focus,.field select:focus,.field textarea:focus{
+  outline:none;border-color:#10b981;
+  box-shadow:0 0 0 3px rgba(16,185,129,0.2),inset 0 2px 6px rgba(0,0,0,0.2);
+}
+.field select option{background:#0d2137;color:#f0fdf4}
+.field textarea{min-height:96px;resize:vertical}
+.required{color:#f87171}
+.consent{font-size:11px;line-height:1.9;color:rgba(240,253,244,0.45);margin:14px 0}
+
+.score{text-align:center;padding-top:10px}
+.score b{
+  display:block;font-size:68px;color:#34d399;line-height:1.05;
+  text-shadow:0 0 40px rgba(52,211,153,0.4),0 4px 20px rgba(0,0,0,0.3);
+}
+.level{
+  display:inline-block;padding:10px 18px;
+  background:rgba(16,185,129,0.2);
+  color:#6ee7b7;border-radius:999px;font-weight:900;
+  border:1px solid rgba(16,185,129,0.3);
+  box-shadow:0 4px 16px rgba(16,185,129,0.2);
+}
+.summary{
+  background:rgba(0,0,0,0.2);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:18px;padding:18px;line-height:2;margin-top:18px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.15);
+}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.domainbox{
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:18px;padding:16px;
+  background:rgba(255,255,255,0.05);
+  box-shadow:0 4px 16px rgba(0,0,0,0.15);
+  transition:transform .2s,box-shadow .2s;
+}
+.domainbox:hover{
+  transform:translateY(-3px);
+  box-shadow:0 12px 28px rgba(16,185,129,0.15);
+  border-color:rgba(16,185,129,0.3);
+}
+.domainbox b{font-size:13px;color:#a7f3d0}
+.meter{
+  height:9px;background:rgba(255,255,255,0.08);
+  border-radius:10px;overflow:hidden;margin-top:12px;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,0.25);
+}
+.meter i{
+  display:block;height:100%;
+  background:linear-gradient(90deg,#047857,#10b981);
+  border-radius:10px;
+  box-shadow:0 0 12px rgba(16,185,129,0.4);
+}
+.rank{font-size:11px;color:rgba(240,253,244,0.45);margin-bottom:6px}
+
+.leak{
+  border:1px solid rgba(251,191,36,0.25);
+  border-right:4px solid #fbbf24;
+  background:linear-gradient(135deg,rgba(251,191,36,0.1),rgba(245,158,11,0.05));
+  border-radius:18px;padding:18px;margin:12px 0;line-height:1.9;
+  box-shadow:0 6px 20px rgba(0,0,0,0.15);
+}
+.leak b{display:block;margin-bottom:5px;color:#fde68a}
+
+.action{
+  background:linear-gradient(145deg,rgba(16,185,129,0.12),rgba(6,78,59,0.15));
+  border-radius:20px;padding:20px;line-height:2;margin:24px 0;
+  border:1px solid rgba(16,185,129,0.2);
+  box-shadow:0 8px 24px rgba(0,0,0,0.15);
+}
+.action b{color:#34d399}
+.next{
+  background:rgba(16,185,129,0.08);
+  border:1px solid rgba(16,185,129,0.2);
+  border-radius:20px;padding:20px;line-height:2;
+  box-shadow:0 6px 20px rgba(0,0,0,0.12);
+}
+.compare{
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:18px;padding:18px;line-height:2;
+  background:rgba(255,255,255,0.04);
+  box-shadow:0 4px 16px rgba(0,0,0,0.12);
+}
+.tag{display:inline-block;background:rgba(255,255,255,0.08);border-radius:999px;padding:5px 12px;font-size:11px;margin:3px}
+.tag.green{background:rgba(16,185,129,0.2);color:#6ee7b7}
+
+.cta{
+  margin-top:20px;padding:24px;border-radius:24px;
+  background:linear-gradient(155deg,#064e3b 0%,#047857 50%,#059669 100%);
+  color:#fff;
+  box-shadow:
+    0 20px 50px rgba(16,185,129,0.3),
+    0 8px 20px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+  position:relative;overflow:hidden;
+}
+.cta::before{
+  content:"";
+  position:absolute;top:-50%;right:-30%;
+  width:250px;height:250px;
+  background:radial-gradient(circle,rgba(255,255,255,0.1),transparent 70%);
+  pointer-events:none;
+}
+.cta h3{margin-top:0;color:#fff}
+.cta p{color:rgba(167,243,208,0.85);font-size:13.5px;line-height:2}
+.cta .btn{margin-top:10px}
+
+.footnote{font-size:11px;color:rgba(240,253,244,0.4);line-height:1.9;margin-top:14px}
+.sendstatus{
+  margin-top:14px;padding:13px 16px;border-radius:14px;
+  background:rgba(0,0,0,0.25);color:rgba(240,253,244,0.55);
+  font-size:12px;line-height:1.9;
+  border:1px solid rgba(255,255,255,0.08);
+}
+.sendstatus.ok{background:rgba(16,185,129,0.15);color:#6ee7b7;border-color:rgba(16,185,129,0.3)}
+.sendstatus.err{background:rgba(220,38,38,0.15);color:#fca5a5;border-color:rgba(220,38,38,0.3)}
+.hidden{display:none!important}
+footer{
+  text-align:center;color:rgba(240,253,244,0.35);
+  font-size:11px;padding:22px;
+  border-top:1px solid rgba(255,255,255,0.08);
+  background:rgba(0,0,0,0.15);
+}
+
+@media(max-width:560px){
+  body{background-attachment:scroll}
+  .app{margin:0;border-radius:0;min-height:100vh;border:none;box-shadow:none}
+  h1{font-size:26px}
+  .q{font-size:18px}
+  .grid{grid-template-columns:1fr}
+  main{padding:20px 14px 42px}
+  .hero{padding-top:32px}
+  .top{padding:14px 16px}
+  .icon{width:84px;height:84px;font-size:36px;border-radius:24px}
+  .score b{font-size:54px}
+}
+@media print{
+  body{background:#fff!important;color:#000}
+  body::before,body::after{display:none}
+  .top,footer,.no-print,.cta{display:none!important}
+  .app{box-shadow:none;background:#fff;border:none;margin:0;border-radius:0;color:#000}
+  .card,.form,.next,.compare,.domainbox,.leak,.action{background:#fff;color:#000;border-color:#ddd;box-shadow:none}
+  h1,h2,h3,.q,.domainbox b,.action b{color:#000}
+  .lead,.small,.consent,.footnote,.rank{color:#555}
+  .chip,.level,.tag.green{background:#e8f5f0;color:#0d7a5f}
+  .primary{background:#0d7a5f;color:#fff}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="logo">مسیر سبز</div><div class="small" id="topStatus">ارزیابی اولیه فروش</div></header>
+<main>
+<section id="start">
+<div class="hero">
+<div class="icon">⌁</div><div class="eyebrow">ابزار پیش‌تشخیص فروش</div><h1>بازی کشف نشت فروش</h1>
+<p class="lead">در حدود ۱۰ تا ۱۵ دقیقه بررسی کنید در کدام بخش‌های فرایند فروش، ظرفیت بیشتری برای بهبود وجود دارد.</p>
+<div class="chips"><span class="chip">۳۰ سؤال</span><span class="chip">۶ حوزه</span><span class="chip">گزارش شخصی</span><span class="chip">اقدام ۷ روزه</span></div>
+<div class="note">این ابزار یک ارزیابی عملی اولیه است؛ نتیجه آن جایگزین بررسی داده‌های واقعی، مصاحبه با تیم یا حسابرسی کامل کسب‌وکار نیست.</div>
+<button class="btn primary" id="startBtn">شروع بازی</button><div class="footnote">نسخه متصل: پس از راه‌اندازی Web App، نتیجه هر لید می‌تواند به ادمین ایتا ارسال شود.</div>
+</div>
+</section>
+<section hidden="" id="quiz">
+<div class="progressline"><span id="counter"></span><span id="pct"></span></div><div class="progress"><i id="bar"></i></div>
+<div class="card"><div class="domain" id="domain"></div><div class="q" id="question"></div><div id="options"></div></div>
+</section>
+<section hidden="" id="lead">
+<div class="form">
+<h2>گزارش اولیه شما آماده است</h2><p class="lead">برای اینکه نتیجه برای پیگیری بعدی قابل استفاده باشد، اطلاعات زیر را وارد کنید. نمایش گزارش کامل بعد از ثبت فرم انجام می‌شود.</p>
+<div class="field"><label>نام <span class="required">*</span></label><input autocomplete="name" id="name" placeholder="نام شما"/></div>
+<div class="field"><label>شماره موبایل <span class="required">*</span></label><input autocomplete="tel" id="phone" inputmode="tel" placeholder="مثلاً 0912xxxxxxx"/></div>
+<div class="field"><label>نوع کسب‌وکار <span class="required">*</span></label><input id="business" placeholder="مثلاً فروشگاه پوشاک"/></div>
+<div class="field"><label>شهر</label><input id="city" placeholder="مثلاً همدان"/></div>
+<div class="field"><label>تعداد اعضای تیم</label><select id="team"><option value="">انتخاب کنید</option><option>فقط خودم</option><option>۲ تا ۳ نفر</option><option>۴ تا ۱۰ نفر</option><option>بیش از ۱۰ نفر</option></select></div>
+<div class="field"><label>اگر فقط یک مشکل فروش را می‌توانستید حل کنید، کدام را انتخاب می‌کردید؟</label><textarea id="pain" placeholder="مثلاً مشتری می‌آید ولی خرید نمی‌کند..."></textarea></div>
+<div class="consent">با ثبت فرم، اطلاعاتی که وارد کرده‌اید برای ارائه و پیگیری همین ارزیابی استفاده می‌شود. در نسخه متصل، اطلاعات این فرم برای پیگیری همین ارزیابی به Web App شما ارسال و سپس برای ادمین ایتا فرستاده می‌شود. توکن ایتا داخل این صفحه قرار نمی‌گیرد.</div>
+<button class="btn primary" id="reportBtn">مشاهده گزارش من</button>
+</div>
+</section>
+<section hidden="" id="result">
+<div class="score"><div class="small">امتیاز کلی شاخص‌های فروش</div><b id="total"></b><span class="level" id="level"></span><div class="summary" id="summary"></div></div>
+<h3>نقشه ۶ حوزه فروش</h3><div class="grid" id="domains"></div>
+<h3>۳ نقطه قابل بررسی</h3><div id="leaks"></div>
+<h3>دردی که خودتان انتخاب کردید در برابر نتیجه اولیه</h3><div class="compare" id="compare"></div>
+<div class="action"><b>اقدام پیشنهادی ۷ روز آینده</b><div id="action"></div></div>
+<div class="next"><b>چرا اینجا تمام نمی‌شود؟</b><br/>این بازی فقط به شما می‌گوید کدام بخش‌ها ارزش بررسی بیشتری دارند. در مرحله بعد باید نتیجه با داده واقعی کسب‌وکار مقایسه شود تا مشخص شود مسئله اصلی کجاست و چه اقدامی ارزش اجرا دارد.</div>
+<div class="cta no-print"><h3>مرحله بعد: جلسه تشخیص فروش</h3><p>در این جلسه، نتیجه بازی را با شرایط واقعی کسب‌وکار بررسی می‌کنیم؛ هدف، پیدا کردن مسئله قابل اقدام است، نه ارائه یک نسخه آماده برای همه.</p><button class="btn secondary" id="copyBtn">کپی پیام درخواست جلسه</button><button class="btn mutedbtn" id="downloadBtn" style="margin-top:8px">ذخیره گزارش روی همین دستگاه</button><div class="sendstatus" id="sendStatus">در حال آماده‌سازی اتصال...</div><div class="footnote">برای اتصال مستقیم این دکمه به واتساپ، ایتا، فرم آنلاین یا CRM، کافی است شماره/لینک مقصد شما در نسخه نهایی تنظیم شود.</div></div>
+<div class="no-print" style="margin-top:10px"><button class="btn secondary" onclick="window.print()">چاپ / ذخیره PDF</button></div>
+</section>
+</main>
+<footer>مسیر سبز | بازاریابی و فروش برای فروشگاه‌ها و کسب‌وکارهای کوچک و متوسط</footer>
+</div>
+<script>
+'use strict';
+// فقط آدرس Web App واسط را اینجا قرار دهید. توکن ایتا هرگز در این فایل قرار نمی‌گیرد.
+const LEAD_ENDPOINT='PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+const D=[
+['جذب مشتری',.15,[['مشتریان جدید شما معمولاً از چه مسیرهایی وارد کسب‌وکارتان می‌شوند؟',['بیشتر اتفاقی یا معرفی','چند مسیر داریم ولی دقیق نمی‌دانیم کدام بهتر است','کانال‌های اصلی جذب را می‌شناسیم','عملکرد هر کانال را اندازه‌گیری و مدیریت می‌کنیم']],['اگر تعداد مشتریان جدید در یک ماه به‌طور محسوسی کاهش پیدا کند، چه می‌کنید؟',['صبر می‌کنیم شرایط بهتر شود','تبلیغات را بیشتر می‌کنیم','بررسی می‌کنیم کدام مسیر جذب ضعیف شده','منبع ورودی، تعداد سرنخ، هزینه جذب و تبدیل هر کانال را بررسی می‌کنیم']],['چقدر مشتری هدف کسب‌وکارتان را دقیق می‌شناسید؟',['تقریباً همه می‌توانند مشتری ما باشند','یک تصویر کلی داریم','گروه‌های اصلی مشتریان را می‌شناسیم','نیاز، رفتار خرید و معیار انتخاب آنها را مشخص کرده‌ایم']],['وقتی تبلیغ یا کمپین اجرا می‌کنید، چه چیزی را بررسی می‌کنید؟',['فقط دیده‌شدن','تعداد تماس یا پیام','تعداد مشتری و فروش','سرنخ، نرخ تبدیل، هزینه جذب و فروش حاصل']],['اگر تبلیغی مشتری زیادی بیاورد ولی فروش کمی ایجاد کند، چه می‌کنید؟',['تبلیغ را متوقف می‌کنیم','فکر می‌کنیم مشتری مناسب نبوده','بررسی می‌کنیم مشکل در کدام مرحله است','مسیر کامل تبلیغ تا خرید را بررسی می‌کنیم']]]],
+['تبدیل مشتری به خریدار',.20,[['وقتی مشتری وارد فروشگاه یا ارتباط فروش می‌شود، فروشنده معمولاً چه می‌کند؟',['منتظر سؤال مشتری می‌ماند','محصول را معرفی می‌کند','نیاز مشتری را می‌پرسد و پیشنهاد می‌دهد','فرایند مشخص نیازسنجی، ارائه، اعتراض و نهایی‌سازی دارد']],['وقتی مشتری می‌گوید «گران است»، معمولاً چه اتفاقی می‌افتد؟',['تخفیف می‌دهیم','قیمت را توضیح می‌دهیم','ارزش و تفاوت محصول را توضیح می‌دهیم','ابتدا علت واقعی اعتراض را مشخص و سپس پاسخ متناسب ارائه می‌کنیم']],['وقتی مشتری خرید نمی‌کند، آیا دلیل عدم خرید مشخص می‌شود؟',['خیر','گاهی از مشتری می‌پرسیم','دلایل اصلی را می‌شناسیم','دلایل عدم خرید ثبت و تحلیل می‌شوند']],['عملکرد فروشنده‌ها را چگونه بررسی می‌کنید؟',['بیشتر فقط مبلغ فروش','فروش و تعداد فاکتور','فروش، تعداد مشتری و میانگین خرید','نرخ تبدیل، مبلغ خرید، پیگیری، بازگشت و شاخص‌های مرتبط']],['اگر فروش یک فروشنده کاهش پیدا کند، اولین اقدام شما چیست؟',['می‌گوییم بیشتر تلاش کند','فروش او را با ماه قبل مقایسه می‌کنیم','عوامل احتمالی را بررسی می‌کنیم','مراحل مختلف فروش او را بررسی می‌کنیم تا محل افت مشخص شود']]]],
+['افزایش ارزش هر خرید',.15,[['آیا میانگین مبلغ هر خرید را می‌دانید؟',['خیر','حدودی','مرتب بررسی می‌کنیم','روند آن را در دوره‌های مختلف تحلیل می‌کنیم']],['آیا هنگام خرید، محصول یا خدمت مکمل پیشنهاد می‌کنید؟',['خیر','فقط اگر مشتری بپرسد','فروشنده‌ها معمولاً پیشنهاد می‌کنند','برای محصولات اصلی پیشنهادهای مکمل مشخص داریم']],['آیا فروشنده‌ها برای افزایش ارزش خرید آموزش دیده‌اند؟',['خیر','گاهی توصیه می‌کنیم','اصول آن را آموزش داده‌ایم','آموزش، سناریو و شاخص مشخص داریم']],['اگر بخواهید فروش را افزایش دهید، معمولاً از کجا شروع می‌کنید؟',['فقط مشتری بیشتری جذب می‌کنیم','تبلیغات را بیشتر می‌کنیم','مشتری فعلی و مبلغ خرید را هم بررسی می‌کنیم','تعداد مشتری، نرخ تبدیل، میانگین خرید و دفعات خرید را بررسی می‌کنیم']],['آیا می‌دانید کدام محصولات یا خدمات بیشترین سود را ایجاد می‌کنند؟',['خیر','حدودی','بله','مرتب تحلیل می‌کنیم و بر اساس آن تصمیم می‌گیریم']]]],
+['بازگشت مشتری',.15,[['بعد از خرید مشتری چه اتفاقی می‌افتد؟',['تقریباً هیچ','اگر خودش برگردد دوباره فروش می‌کنیم','گاهی با مشتری ارتباط داریم','برنامه مشخص ارتباط و خرید مجدد داریم']],['اطلاعات مشتریان قبلی را چگونه نگهداری می‌کنید؟',['ثبت نمی‌کنیم','شماره بعضی مشتریان را داریم','اطلاعات بخش زیادی ثبت شده','بانک اطلاعات منظم و قابل استفاده داریم']],['اگر مشتری مدتی خرید نکند، چه می‌کنید؟',['هیچ کاری','منتظر بازگشت او می‌مانیم','گاهی پیام یا تماس می‌دهیم','مشتریان غیرفعال را شناسایی و برای بازگشتشان برنامه داریم']],['مشتریان خود را چگونه دسته‌بندی می‌کنید؟',['دسته‌بندی نداریم','مشتری خوب و معمولی','بر اساس میزان خرید یا ارزش','بر اساس رفتار، ارزش، تازگی خرید و احتمال بازگشت']],['می‌دانید چه مقدار از فروش شما از مشتریان قبلی است؟',['نمی‌دانم','حدودی می‌دانم','اندازه‌گیری می‌کنم','به‌صورت منظم بررسی و تحلیل می‌کنم']]]],
+['پیگیری و مدیریت سرنخ',.20,[['مشتری قیمت می‌گیرد ولی خرید نمی‌کند. معمولاً چه می‌کنید؟',['هیچ کاری','منتظر می‌مانیم خودش برگردد','بعضی مشتریان را پیگیری می‌کنیم','اطلاعات، زمان پیگیری و نتیجه ثبت می‌شود']],['چه کسی مسئول پیگیری مشتریان است؟',['مشخص نیست','هرکس یادش باشد','یک نفر مسئول است','مسئول، زمان، روش و نتیجه پیگیری مشخص است']],['مشتری بالقوه را چگونه پیگیری می‌کنید؟',['معمولاً یک بار','تا وقتی جواب بدهد','چند بار در فاصله‌های مختلف','بر اساس سناریوی مشخص و متناسب با نوع مشتری']],['نتیجه پیگیری مشتریان کجا ثبت می‌شود؟',['ثبت نمی‌شود','در گوشی یا حافظه افراد','دفتر یا فایل مشخص','سیستم مشخصی داریم که وضعیت هر مشتری قابل مشاهده است']],['اگر بپرسیم «۱۰ مشتری با احتمال خرید بالاتر چه کسانی هستند؟» چه می‌کنید؟',['نمی‌دانم','چند نفر را ذهنی می‌شناسم','می‌توانم آنها را پیدا کنم','سرنخ‌ها ثبت و بر اساس احتمال خرید اولویت‌بندی شده‌اند']]]],
+['سیستم، داده و مدیریت فروش',.15,[['آیا هدف فروش مشخص دارید؟',['خیر','یک عدد تقریبی','هدف ماهانه مشخص','هدف ماهانه به اهداف هفتگی، روزانه و شاخص‌های عملیاتی شکسته شده است']],['کدام شاخص‌ها را مرتب بررسی می‌کنید؟',['فقط مبلغ فروش','فروش و تعداد فاکتور','فروش، مشتری و میانگین خرید','جذب، تبدیل، میانگین خرید، بازگشت، پیگیری و سودآوری']],['اگر فروش ماه گذشته ۱۵٪ کاهش پیدا کند، می‌توانید بفهمید چرا؟',['معمولاً نه','حدس می‌زنیم','چند عامل را بررسی می‌کنیم','با داده مشخص می‌کنیم مشکل از جذب، تبدیل، ارزش خرید یا بازگشت بوده است']],['فرایند فروش شما چقدر به افراد خاص وابسته است؟',['بسیار زیاد','بعضی کارها وابسته است','بیشتر کارها مشخص شده','فرایندهای اصلی مستند و قابل آموزش هستند']],['اگر ۳۰ روز در کسب‌وکارتان حضور نداشته باشید، چه اتفاقی می‌افتد؟',['فروش به‌شدت مختل می‌شود','بخشی از کارها ادامه پیدا می‌کند','بیشتر کارها ادامه پیدا می‌کند','مسئولیت‌ها و فرایندها مشخص‌اند و وابستگی به حضور مالک محدود است']]]]
+];
+const Q=[];D.forEach((d,di)=>d[2].forEach((x,qi)=>Q.push({di,qi,n:d[0],q:x[0],o:x[1]})));
+const LEAKS=[
+['پیگیری سرنخ','مشتریانی که قیمت یا اطلاعات گرفته‌اند اما پیگیری ساختاریافته‌ای دریافت نمی‌کنند.','۱۰ سرنخ اخیر را فهرست کنید و برای هرکدام وضعیت، اقدام بعدی و تاریخ پیگیری ثبت کنید.',4],
+['تبدیل و نهایی‌سازی','ممکن است بخشی از مراجعه‌کنندگان یا سرنخ‌ها در مسیر تبدیل به خرید از دست بروند.','۱۰ مورد اخیر عدم خرید را بررسی و دلیل هرکدام را ثبت کنید.',5],
+['مدیریت اعتراض قیمت','واکنش به اعتراض «گران است» ممکن است قبل از کشف علت واقعی اعتراض انجام شود.','سه اعتراض پرتکرار را جمع‌آوری و برای هرکدام سناریوی پاسخ طراحی کنید.',6],
+['بازگشت مشتری','ظرفیت مشتریان قبلی برای خرید مجدد ممکن است به‌صورت منظم مدیریت نشود.','مشتریان غیرفعال را مشخص و یک برنامه بازگشت کوچک برای آنها اجرا کنید.',7],
+['بانک اطلاعات مشتری','اطلاعات مشتریان ممکن است پراکنده، ناقص یا غیرقابل استفاده باشد.','حداقل نام، موبایل، آخرین خرید و وضعیت پیگیری ۳۰ مشتری اخیر را ثبت کنید.',8],
+['جذب و کانال‌های ورودی','ممکن است منبع مشتری جدید مشخص یا قابل اندازه‌گیری نباشد.','منبع ورود همه مشتریان جدید یک هفته آینده را ثبت کنید.',0],
+['شناخت مشتری هدف','ممکن است پیام و پیشنهاد کسب‌وکار برای گروه مشخصی از مشتریان طراحی نشده باشد.','سه گروه اصلی مشتری را با نیاز و معیار انتخابشان بنویسید.',2],
+['ارزش هر خرید','ظرفیت افزایش مبلغ هر خرید از طریق مکمل یا ارتقا ممکن است استفاده نشده باشد.','برای پنج محصول پرفروش، یک پیشنهاد مکمل مشخص کنید.',3],
+['سودآوری محصول','ممکن است تصمیم‌های فروش بیشتر بر فروش ریالی باشد تا سودآوری.','پنج محصول پرفروش را با حاشیه سودشان کنار هم بررسی کنید.',4],
+['داده و شاخص‌ها','ممکن است افت فروش بدون شکستن آن به اجزای اصلی قابل توضیح نباشد.','یک داشبورد هفتگی با جذب، تبدیل، میانگین خرید، بازگشت و پیگیری بسازید.',5],
+['استانداردسازی فروش','ممکن است نتیجه فروش بیش از حد به افراد خاص وابسته باشد.','سه مرحله اصلی فروش را مکتوب و به یک فروشنده دیگر آموزش دهید.',9],
+['هدف‌گذاری فروش','ممکن است هدف فروش به فعالیت‌های روزانه و هفتگی ترجمه نشده باشد.','هدف ماهانه را به هدف هفتگی و شاخص‌های عملیاتی تبدیل کنید.',10]
+];
+let idx=0,answers=[],resultData=null;
+const $=id=>document.getElementById(id);
+function show(id){['start','quiz','lead','result'].forEach(x=>$(x).hidden=x!==id);window.scrollTo({top:0,behavior:'smooth'});}
+function render(){const x=Q[idx];const pct=Math.round(idx/30*100);$('counter').textContent=`سؤال ${idx+1} از ۳۰`;$('pct').textContent=pct+'%';$('bar').style.width=pct+'%';$('domain').textContent=x.n;$('question').textContent=x.q;$('options').innerHTML='';x.o.forEach((t,n)=>{const b=document.createElement('button');b.className='opt';b.type='button';b.innerHTML=`<span class="num">${n+1}</span><span>${t}</span>`;b.onclick=()=>choose(n);$('options').appendChild(b);});}
+function choose(n){answers[idx]=n;if(idx<29){idx++;render();}else{$('topStatus').textContent='گزارش شما';show('lead');}}
+function domainScores(){return D.map((d,di)=>{let vals=Q.map((q,k)=>q.di===di?answers[k]:null).filter(v=>v!==null);let raw=vals.reduce((a,b)=>a+b,0);return Math.round(raw/15*100);});}
+function overall(scores){return Math.round(scores.reduce((a,v,i)=>a+v*D[i][1],0));}
+function level(v){return v<40?'فروش واکنشی':v<60?'فروش نیمه‌سیستماتیک':v<80?'فروش سیستماتیک':'فروش قابل توسعه';}
+function leakScore(l,scores){const domain=scores[l[3]];let qWeak=0;Q.forEach((q,k)=>{if(q.di===l[3]&&answers[k]<=1)qWeak++;});return (100-domain)+qWeak*12;}
+function safe(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+function validPhone(v){return /^[0-9۰-۹+\-\s()]{8,20}$/.test(v.trim());}
+function report(){const name=$('name').value.trim(),phone=$('phone').value.trim(),business=$('business').value.trim();if(!name||!validPhone(phone)||!business){alert('لطفاً نام، شماره موبایل معتبر و نوع کسب‌وکار را وارد کنید.');return;}const scores=domainScores(),total=overall(scores);const ranked=LEAKS.map((l,k)=>({...l,k,r:leakScore(l,scores)})).sort((a,b)=>b.r-a.r).slice(0,3);resultData={name,phone,business,city:$('city').value.trim(),team:$('team').value,pain:$('pain').value.trim(),scores,total,ranked,created:new Date().toISOString()};localStorage.setItem('masirsabz_last_lead',JSON.stringify(resultData));$('total').textContent=total;$('level').textContent=level(total);$('summary').textContent=total<40?'در چند بخش اصلی فروش، فرایندها هنوز بیشتر واکنشی هستند و برای ساختن نظم فروش، فرصت مشخصی وجود دارد.':total<60?'بعضی اجزای فروش شکل گرفته‌اند، اما چند نقطه هنوز می‌تواند به‌صورت جدی‌تر سیستماتیک شود.':total<80?'بخش قابل توجهی از فرایند فروش ساختار دارد؛ تمرکز بعدی بهتر است روی نقاط ضعیف‌تر و قابل اندازه‌گیری باشد.':'زیرساخت فروش نسبتاً منظم است؛ برای رشد بعدی، باید نقاط محدودکننده و داده‌های واقعی کسب‌وکار دقیق‌تر بررسی شوند.';$('domains').innerHTML=scores.map((v,k)=>`<div class="domainbox"><b>${D[k][0]}</b><div class="small">${v}%</div><div class="meter"><i style="width:${v}%"></i></div></div>`).join('');$('leaks').innerHTML=ranked.map((l,n)=>`<div class="leak"><div class="rank">نقطه قابل بررسی ${n+1}</div><b>${l[0]}</b><div>${l[1]}</div></div>`).join('');$('action').textContent=ranked[0][2];const pain=resultData.pain;let topDomain=scores.indexOf(Math.min(...scores));let pHtml=pain?`<span class="tag">انتخاب شما: ${safe(pain)}</span><br>`:'<span class="tag">هنوز مسئله‌ای از طرف شما ثبت نشده است.</span><br>';pHtml+=`<span class="tag green">پایین‌ترین حوزه در این ارزیابی: ${D[topDomain][0]}</span>`;if(pain)pHtml+='<br><span class="footnote">این دو مورد ممکن است یک مسئله باشند یا دو مسئله متفاوت؛ جلسه تشخیص برای بررسی همین تفاوت طراحی شده است.</span>';$('compare').innerHTML=pHtml;show('result');sendLead();}
+async function sendLead(){const st=$('sendStatus');if(!st||!resultData)return;if(!LEAD_ENDPOINT||LEAD_ENDPOINT.includes('PASTE_YOUR_')){st.className='sendstatus err';st.textContent='اتصال ایتا هنوز فعال نشده است. اطلاعات در همین دستگاه ذخیره شده و برای فعال‌سازی ارسال خودکار باید Web App واسط را در فایل قرار دهید.';return;}st.className='sendstatus';st.textContent='در حال ارسال نتیجه به ادمین...';try{const body=new URLSearchParams();body.set('payload',JSON.stringify({source:'بازی کشف نشت فروش | مسیر سبز',lead:resultData}));const r=await fetch(LEAD_ENDPOINT,{method:'POST',body});const j=await r.json().catch(()=>({ok:false}));if(j.ok){st.className='sendstatus ok';st.textContent='✓ نتیجه شما با موفقیت برای ادمین ارسال شد.';}else{throw new Error(j.error||'send_failed');}}catch(e){console.error(e);st.className='sendstatus err';st.textContent='ارسال خودکار انجام نشد؛ نتیجه شما در همین دستگاه محفوظ است و می‌توانید درخواست جلسه را با دکمه زیر ارسال کنید.';}}
+function requestText(){if(!resultData)return '';const top=resultData.ranked[0][0];return `سلام. من ${resultData.name} هستم، صاحب/مدیر ${resultData.business}. بازی «کشف نشت فروش» مسیر سبز را انجام دادم. در نتیجه اولیه، «${top}» به‌عنوان یکی از نقاط قابل بررسی مشخص شد. مایل هستم برای جلسه تشخیص فروش و بررسی دقیق‌تر نتیجه اقدام کنم.`;}
+async function copyRequest(){const t=requestText();try{await navigator.clipboard.writeText(t);alert('متن درخواست جلسه کپی شد. حالا می‌توانید آن را در واتساپ، ایتا یا پیام‌رسان موردنظر خود ارسال کنید.');}catch(e){prompt('متن زیر را کپی کنید:',t);}}
+function saveReport(){if(!resultData)return;const blob=new Blob([JSON.stringify(resultData,null,2)],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='masirsabz-sales-diagnosis.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);}
+$('startBtn').onclick=()=>{idx=0;answers=[];$('topStatus').textContent='بازی کشف نشت فروش';show('quiz');render();};
+$('reportBtn').onclick=report;$('copyBtn').onclick=copyRequest;$('downloadBtn').onclick=saveReport;
+</script>
+</body>
+</html>
